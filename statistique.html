@@ -6,11 +6,111 @@ and open the template in the editor.
 -->
 <html>
     <head>
-        <title>TODO supply a title</title>
+        <title>POSIT'IF</title>
         <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="./stylesheet.css" />
+        <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
     </head>
-    <body>
-        <div>TODO write content</div>
+    <body id='statistique'>
+        <div class="topnav">
+            <a href="./index.html">Déconnexion</a>
+            <a href="./statistique.html">Statistiques</a>
+            <a href="./consultation.html">Voyance</a>
+        </div>
+        <h1>POSIT'IF</h1>
+        <table id='table-body'>
+           <tr>
+                <td id="cell-hist-medium" >
+                    <div id="histogram-medium" class ="histogramme">
+                        <h2 class="title-histo">Nombre de voyances par médium</h2>
+                        <div id="axe-y-medium"></div>
+                        <ul id="conteneur-medium">  
+                        </ul>
+                    </div>
+                    <div id="label-hist-medium">Medium : </div>
+                </td>
+                <td id="cell-hist-employe">
+                    <div id="histogram-employe" class ="histogramme">
+                        <h2 class="title-histo">Nombre de voyances par employé</h2>
+                        <div id="axe-y-employe"></div>
+                        <ul id="conteneur-employe">  
+                        </ul>
+                    </div>     
+                    <div id="label-hist-employe">Employe : </div>
+                </td>
+            </tr>   
+            <tr>
+                <td id="cell-repartition" colspan="2">
+                    <div id="repartition">
+                        <h2>Répartition entre employés</h2>
+                        <ul>  
+                        </ul>
+                    </div>
+                </td>
+            </tr> 
+        </table>
+        <script>
+            function initialisation() {
+                $.ajax({
+                    url: './ActionServlet',
+                    method: 'POST',
+                    data: {
+                        action: 'initialiser-statistique'
+                    },
+                    dataType: 'json'
+                }).done(function (data) {
+                    var connexion = data.connexion;
+                    if(connexion){
+                        var listeHistogramMedium = data.voyances_par_medium;
+                        var ul = document.getElementById("conteneur-medium");
+                        $.each(listeHistogramMedium,function(i,element){
+                            var li = document.createElement("li");
+                            li.appendChild(document.createTextNode(element.valeur + ":" + element.nom));
+                            ul.appendChild(li);
+                        });
+                        var listeHistogramEmploye = data.voyances_par_employe;
+                        ul = document.getElementById("conteneur-employe");
+                        $.each(listeHistogramEmploye,function(i,element){
+                            var li = document.createElement("li");
+                            li.appendChild(document.createTextNode(element.valeur + ":" + element.nom));
+                            ul.appendChild(li);
+                        });
+                        function makeGraph(container, label, xWidth, labelY)
+                        {   
+                            var axeY = document.getElementById(labelY);
+                            axeY.innerHTML = "20<br /> <br /> <br /> 15 <br /> <br /> <br /> 10 <br /> <br /> <br /> 5";
+                            var elements = document.getElementById(container).getElementsByTagName("li");
+                            var labels = document.getElementById(label);
+                            for(var i = 0; i < elements.length; i++)
+                            {
+                                var item = elements.item(i);
+                                var value = item.innerHTML;
+                                var content = value.split(":");
+                                value = content[0];
+                                item.style.height=value*10 + "px";
+                                item.style.top=(249 - value*10) + "px";
+                                item.style.left = (i * xWidth + 20) + "px";
+                                item.innerHTML = value;
+                                item.style.visibility="visible";	
+                                labels.innerHTML = labels.innerHTML + 
+                                     "<span style='margin:8px;width:100px;float: center'>" + 
+                                     content[1] + "</span>";
+                            }	
+                        }
+                        makeGraph("conteneur-medium","label-hist-medium",85,"axe-y-medium");
+                        makeGraph("conteneur-employe","label-hist-employe",100,"axe-y-employe");
+                    }else{
+                        window.location = "connexionEmploye.html";
+                    }
+                });
+            }
+            
+            
+            $(document).ready(function () {
+                //appel de la fonction initialisation
+                initialisation();
+            });
+            
+        </script>
     </body>
 </html>

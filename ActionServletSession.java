@@ -13,6 +13,7 @@ import java.io.PrintWriter;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.ServletException;
@@ -401,6 +402,38 @@ public class ActionServletSession extends HttpServlet {
                     if(e != null){
                         container.addProperty("connexion",true);
                         Service.terminerVoyance(e, commentaire, new Date());
+                    }
+                    else{
+                        container.addProperty("connexion",false);
+                    }
+                    out.println(gson.toJson(container));
+                } 
+            }
+            else if ("initialiser-statistique".equals(action)) {
+                Employe e = (Employe)session.getAttribute("employe");
+                try(PrintWriter out = response.getWriter()){
+                    Gson gson = new GsonBuilder().setPrettyPrinting().create();
+                    JsonObject container = new JsonObject(); 
+                    JsonArray jsonVoyancesParEmploye = new JsonArray();
+                    JsonArray jsonVoyancesParMedium = new JsonArray();
+                    if(e != null){
+                        container.addProperty("connexion",true);
+                        HashMap<String, Long> nbVoyanceParMedium = Service.nbVoyancesParMedium();
+                        for(String s : nbVoyanceParMedium.keySet()){
+                            JsonObject jsonElement = new JsonObject();
+                            jsonElement.addProperty("nom",s);
+                            jsonElement.addProperty("valeur",nbVoyanceParMedium.get(s));
+                            jsonVoyancesParMedium.add(jsonElement);
+                        }
+                        container.add("voyances_par_medium",jsonVoyancesParMedium);
+                        HashMap<String, Long> nbVoyanceParEmp = Service.nbVoyancesParEmploye();
+                        for(String s : nbVoyanceParEmp.keySet()){
+                            JsonObject jsonElement = new JsonObject();
+                            jsonElement.addProperty("nom",s);
+                            jsonElement.addProperty("valeur",nbVoyanceParEmp.get(s));
+                            jsonVoyancesParEmploye.add(jsonElement);
+                        }
+                        container.add("voyances_par_employe",jsonVoyancesParEmploye);
                     }
                     else{
                         container.addProperty("connexion",false);
