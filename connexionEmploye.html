@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title>POSIT'IF</title>
+        <meta charset="UTF-8">
+        <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    </head>
+    <body>
+        <table border = '0' width=100%>
+        <tr>
+        <td align='center'>
+        <h1>Connexion</h1>
+        Identifiant : <input type="text" id="champ-login" name="login" placeholder="votre identifiant" /><br/><br/>
+        <button id="bouton-connexion">Se connecter</button>   
+        <div id="message"></div>
+        </td>
+        </tr>
+        </table>
+        <script>
+
+            function connexion() {
+                var champLogin = $('#champ-login').val();
+
+                $('#message').html('Connexion en cours...');
+
+                $.ajax({
+                    url: './ActionServlet',
+                    method: 'POST',
+                    data: {
+                        action: 'connecter-employe',
+                        login: champLogin
+                    },
+                    dataType: 'json'
+                }).done(function (data) {
+                    // ici votre code...
+                    var status = data.status;
+                    if(status === true){
+                    // si connexion ok, aller sur la page suivante :
+                        window.location = "consultation.html";
+                    }
+                    else{
+                    // si connexion pas ok afficher un texte dans la div message :
+                        $('#message').html('Veuillez vérifier votre identifiant');
+                    }
+                });       
+            }
+            
+            
+
+            $(document).ready(function () {
+                // ajout d'un "handler" sur le clic du bouton de connexion
+                $('#bouton-connexion').on('click', function () {
+                    // affichage pour debugage dans la console javascript du navigateur
+                    console.log('Click sur le bouton "Se Connecter"');
+                    // appel de la fonction connexion
+                    connexion();
+                });
+            });
+            
+            
+        </script>
+    </body>
+</html>

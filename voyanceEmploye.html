@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title>POSIT'IF</title>
+        <meta charset="UTF-8">
+        <link rel="stylesheet" href="./stylesheet.css" />
+        <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    </head>
+    <body id='voyance-employe'>
+        <div class="topnav">
+            <a href="./index.html">Déconnexion</a>
+            <a href="./statistique.html">Statistiques</a>
+            <a href="./consultation.html">Voyance</a>
+        </div>
+        <h1>POSIT'IF</h1>
+        <table id='table-body'>
+           <tr>
+               <td>
+                    <h2 id='nom-prenom'> </h2>
+                    <table id='table-info'> 
+                        <tr>
+                            <td>Civilité :</td>
+                            <td><input type="text" id="champ-civilite" name="civilite" readonly/></td>
+                        </tr>                                  
+                        <tr>
+                            <td>Date de naissance : </td> 
+                            <td><input type="date" id="champ-date" name="date-naissance" readonly/></td>
+                        </tr> 
+                        <tr>
+                            <td>Zodiaque : </td> 
+                            <td><input type="text" id="champ-zodiaque" name="zodiaque" readonly /></td>
+                        </tr>
+                        <tr>
+                            <td>Signe Chinois : </td>
+                            <td><input type="text" id="champ-signe-chinois" name="signe-chinois" readonly/></td>
+                        </tr>
+                        <tr>   
+                            <td>Couleur : </td> 
+                            <td><input type="text" id="champ-couleur" name="couleur" readonly/></td></tr>     
+                        <tr>
+                            <td>Animal Totem : </td> 
+                            <td><input type="text" id="champ-totem" name="totem" readonly/></td>
+                        </tr>
+                        <tr>
+                            <td>Adresse : </td> 
+                            <td><input type="text" id="champ-adresse" name="adresse" readonly/></td>
+                        </tr>
+                        <tr>
+                            <td>Tel : </td> 
+                            <td><input type="text" id="champ-tel" name="tel" readonly /></td>
+                        </tr>
+                        <tr>
+                            <td>Mail : </td> 
+                            <td><input type="text" id="champ-mail" name="mail" readonly /></td>
+                        </tr>
+                    </table>
+                </td>
+                <td>
+                    <table id='table-prediction'> 
+                        <tr>
+                            <td></td>
+                            <td>Amour</td>
+                            <td>Travail</td>
+                            <td>Santé</td>
+                        </tr>                                  
+                        <tr>
+                            <td>Notes : </td> 
+                            <td><input type="text" id="champ-amour" name="amour"/></td>
+                            <td><input type="text" id="champ-travail" name="travail"/></td>
+                            <td><input type="text" id="champ-sante" name="sante" /></td>
+                        </tr> 
+                        <tr>
+                            <td>Prédiction : </td> 
+                            <td colspan='3'><input type="text" id="champ-prediction" name="prediction" readonly /></td>
+                        </tr>
+                        <tr>
+                            <td></td> 
+                            <td colspan='3'><button id='bouton-realiser-prediction'> Réaliser une prédiction</button></td>
+                        </tr>
+                        <tr>   
+                            <td>Commentaire : </td> 
+                            <td colspan='3'><input type="text" id="champ-commentaire" name="commentaire"  /></td>  
+                        </tr>
+                    </table>                   
+                </td>
+            </tr>    
+        </table>    
+        <button id='bouton-terminer-consultation'> Terminer la consultation</button>
+        <script>
+            
+           function realiser_prediction() {
+                var champAmour = $('#champ-amour').val();
+                var champTravail = $('#champ-travail').val();
+                var champSante = $('#champ-sante').val();
+                $.ajax({
+                    url: './ActionServlet',
+                    method: 'POST',
+                    data: {
+                        action: 'realiser-prediction',
+                        amour: champAmour,
+                        sante: champSante,
+                        travail: champTravail
+                    },
+                    dataType: 'json'
+                }).done(function (data) {
+                    // ici votre code...
+                    var connexion = data.connexion;
+                    if(connexion === true){
+                        var status = data.status;
+                        if(status === true){
+                            var listePredictions = data.liste_predictions;
+                            $.each(listePredictions,function(i,prediction){
+                                $('#champ-prediction').val().append(prediction + '\n');
+                            });
+                        }
+                        else{
+                        // si connexion pas ok afficher un texte dans la div message :
+                            alert('Client non trouvé. Veuillez réessayer plus tard');
+                        }
+                    }
+                    else{
+                        window.location = "connexionEmploye.html";
+                    }
+                });       
+            }
+            function terminer_consultation() {
+                var commentaire = $('#champ-commentaire').val();
+                $.ajax({
+                    url: './ActionServlet',
+                    method: 'POST',
+                    data: {
+                        action: 'terminer-consultation',
+                        commentaire: commentaire
+                    },
+                    dataType: 'json'
+                }).done(function (data) {
+                    // ici votre code...
+                    var connexion = data.connexion;
+                    if(connexion === true){
+                        window.location = "consultation.html";
+                    }
+                    else{
+                        window.location = "connexionEmploye.html";
+                    }
+                });       
+            }
+            function initialisation() {
+                $.ajax({
+                    url: './ActionServlet',
+                    method: 'POST',
+                    data: {
+                        action: 'initialiser-voyance-employe'
+                    },
+                    dataType: 'json'
+                }).done(function (data) {
+                    var connexion = data.connexion;
+                    if(connexion){
+                        var status = data.status;
+
+                        if(status) {
+                            var civilite = data.client.civilite;
+                            var nom = data.client.nom;
+                            var prenom = data.client.prenom;
+                            var mail = data.client.mail;
+                            var adresse = data.client.adresse;
+                            var tel = data.client.tel;
+                            var dateNaiss = data.client.date_Naiss;
+                            var signe_chinois = data.client.signe_chinois;
+                            var zodiaque = data.client.zodiaque;
+                            var coul_fav = data.client.coul_fav;
+                            var totem = data.client.animal_totem;
+                            $('#champ-civilite').val(civilite);
+                            $('#champ-nom').val(nom);
+                            $('#champ-prenom').val(prenom);
+                            $('#champ-date').val(dateNaiss);
+                            $('#champ-zodiaque').text(zodiaque);
+                            $('#champ-signe-chinois').text(signe_chinois);
+                            $('#champ-animal-totem').text(totem);
+                            $('#champ-couleur-favorite').text(coul_fav);
+                            $('#champ-adresse').val(adresse);
+                            $('#champ-tel').val(tel);
+                            $('#champ-mail').val(mail);
+                            
+                        }
+                        else  {
+                            alert("Client non trouvé, veuillez réessayer plus tard");
+                        }
+                    }else{
+                        window.location = "connexionEmploye.html";
+                    }
+                });
+            }
+
+            $(document).ready(function () {
+                //appel de la fonction initialisation
+                initialisation();
+            });
+            
+            $('#bouton-realiser-prediction').on('click', function (){
+                // affichage pour debugage dans la console javascript du navigateur
+                console.log('Click sur le bouton "Realiser la prediction"');
+                realiser_prediction();
+            });
+            
+            $('#bouton-terminer-consultation').on('click', function (){
+                // affichage pour debugage dans la console javascript du navigateur
+                console.log('Click sur le bouton "Terminer la consultation"');
+                terminer_consultation();
+            });
+            
+        </script>
+    </body>
+</html>
