@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title>POSIT'IF</title>
+        <meta charset="UTF-8">
+        <link rel="stylesheet" href="./stylesheet.css" />
+        <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    </head>
+    <body id='profil-client'>
+        <div class="topnav">
+                <a href="./index.html">Déconnexion</a>
+                <a href="./historiqueClient.html">Historique</a>
+                <a href="./voyance.html">Voyance</a>
+                <a href="./profilClient.html">Profil</a>
+        </div>
+        <h1>Profil Client</h1>
+        <table id ='mep-profil-client'>
+            <tr>
+                <td rowspan = '2'>
+                    <div id='Identite'>
+                        <h2>Identité</h2>
+                        <table>
+                            <tr>
+                                <td>Civilité : </td>
+                                <td><select id="bouton-civilite" name="civilite" size="1">
+                                    <option value="M."> M.</option>
+                                    <option value="Mme."> Mme.</option>
+                                </select> </td>
+                            </tr>
+                            <tr>
+                                <td>Nom :</td><td> <input type="text" id="champ-nom" name="nom" value= /></td>
+                            </tr>
+                            <tr>
+                                <td>Prénom : </td><td> <input type="text" id="champ-prenom" name="prenom" placeholder="Prénom" /></td>
+                            </tr>
+                            <tr>
+                                <td>Date de naissance : </td><td> <input type="date" id="champ-date" name="date-naissance" /></td>
+                            </tr>
+                        </table>
+                        <br>
+                            <button id='bouton-modification-ident'>Enregistrer les modifications</button>   
+                            <div id='message'></div>
+                    </div>
+                </td>
+                <td>
+                    <div id='profil_astro'>
+                        <h2>Profil Astrologique</h2>
+                        <table>
+                            <tr>
+                                <td>Zodiaque :</td><td>  <span id="Zodiaque"></span></td>
+                            </tr>
+                            <tr>
+                                <td>Signe Chinois :</td><td>  <span id="Signe_chinois"></span></td>
+                            </tr>
+                            <tr>
+                                <td>Couleur favorite : </td><td> <span id="Couleur_favorite"></span></td>
+                            </tr>
+                            <tr>
+                                <td>Animal Totem : </td><td> <span id="Animal_totem"></span></td>
+                            </tr>
+                        </table>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <div id='Coordonnées'>
+                        <h2>Coordonnées</h2>
+                        <table>
+                            <tr>
+                                <td>Adresse : </td><td> <input type="text" id="champ-adresse" name="adresse" value="" /></td>
+                            </tr>
+                            <tr>
+                                <td>Téléphone : </td><td> <input type="text" id="champ-tel" name="telephone" value=""/></td>
+                            </tr>
+                            <tr>
+                                <td>Mail :  </td><td><input type="text" id="champ-mail" name="adresse" value="" /></td>
+                            </tr>
+                        </table>
+                            <br/>
+                            <button id="bouton-modification-coords">Enregistrer les modifications</button> 
+                            <div id='message'></div>
+                    </div>
+                </td>
+            </tr>
+        </table>
+        <script>
+
+            function modification_ident() {
+                var civilite = $('#bouton-civilite').val();
+                var nom = $('#champ-nom').val();
+                var prenom = $('#champ-prenom').val();
+                var dateNaissance = $('#champ-date').val();
+                
+                $.ajax({
+                    url: './ActionServlet',
+                    method: 'POST',
+                    data: {
+                        action: 'modifierProfil',
+                        type: 'ident',
+                        civilite: civilite,
+                        nom: nom,
+                        prenom: prenom,
+                        dateNaissance: dateNaissance
+                    },
+                    dataType: 'json'
+                }).done(function (data) {
+                    // ici votre code...
+                    var status = data.status;
+                    if(status === true){
+                        alert("Modifications enregistrées")
+                    // si connexion ok, aller sur la page suivante :
+                        window.location = "profilClient.html";
+                    }
+                    else{
+                    // si connexion pas ok afficher un texte dans la div message :
+                        $('#message').html('Echec de la modification');
+                    }
+                });       
+            }
+            
+            function modification_coords () {
+                var adresse = $('#champ-adresse').val();
+                var mail = $('#champ-mail').val();
+                var tel = $('#champ-tel').val();
+                
+                $.ajax({
+                    url: './ActionServlet',
+                    method: 'POST',
+                    data: {
+                        action: 'modifierProfil',
+                        type: 'coords',
+                        mail: mail,
+                        adresse: adresse,
+                        tel: tel
+                    },
+                    dataType: 'json'
+                }).done(function (data) {
+                    // ici votre code...
+                    var status = data.status;
+                    if(status === true){
+                        alert("Modifications enregistrées")
+                    // si connexion ok, aller sur la page suivante :
+                        window.location = "profilClient.html";
+                    }
+                    else{
+                    // si connexion pas ok afficher un texte dans la div message :
+                        $('#message').html('Echec de la modification');
+                    }
+                });       
+            }
+           
+            function initialisation() {
+                $.ajax({
+                    url: './ActionServlet',
+                    method: 'POST',
+                    data: {
+                        action: 'initialiser-profilClient',
+                    },
+                    dataType: 'json'
+                }).done(function (data) {
+                    var status = data.status;
+                    if(status) {
+                        var nom = data.client.nom;
+                        var prenom = data.client.prenom;
+                        var mail = data.client.mail;
+                        var adresse = data.client.adresse;
+                        var tel = data.client.tel;
+                        var dateNaiss = data.client.date_Naiss;
+                        var signe_chinois = data.client.signe_chinois;
+                        var zodiaque = data.client.zodiaque;
+                        var coul_fav = data.client.coul_fav;
+                        var totem = data.client.animal_totem;
+
+                        $('#champ-nom').val(nom);
+                        $('#champ-prenom').val(prenom);
+                        $('#champ-date').val(dateNaiss);
+                        $('#Zodiaque').text(zodiaque);
+                        $('#Signe_chinois').text(signe_chinois);
+                        $('#Animal_totem').text(totem);
+                        $('#Couleur_favorite').text(coul_fav);
+                        $('#champ-adresse').val(adresse);
+                        $('#champ-tel').val(tel);
+                        $('#champ-mail').val(mail);
+                    }
+                    else  {
+                        window.location = "connexionClient.html";
+                    }
+                });
+            }
+
+            $(document).ready(function () {
+                //appel de la fonction initialisation
+                initialisation();
+            });
+            
+            $('#bouton-modification-coords').on('click', function (){
+                // affichage pour debugage dans la console javascript du navigateur
+                console.log('Click sur le bouton "Enregistrer les modifications"');
+                
+                modification_coords();
+            });
+            
+            $('#bouton-modification-ident').on('click', function (){
+                // affichage pour debugage dans la console javascript du navigateur
+                console.log('Click sur le bouton "Enregistrer les modifications"');
+                
+                modification_ident();
+            });
+            
+        </script>
+    </body>
+</html>

@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title>POSIT'IF</title>
+        <meta charset="UTF-8">
+        <link rel="stylesheet" href="./stylesheet.css" />
+        <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    </head>
+    <body id='statistique'>
+        <div class="topnav">
+            <a href="./index.html">Déconnexion</a>
+            <a href="./statistique.html">Statistiques</a>
+            <a href="./consultation.html">Voyance</a>
+        </div>
+        <h1>POSIT'IF</h1>
+        <table id='table-body'>
+           <tr>
+                <td id="cell-hist-medium" >
+                    <div id="container-1" class="highcharts-container">
+                </td>
+                <td id="cell-hist-employe">
+                    <div id="container-2" class="highcharts-container">
+                </td>
+            </tr>   
+            <tr>
+                <td id="cell-repartition" colspan="2">
+                    <div id="container-3" class="highcharts-container">
+                </td>
+            </tr> 
+        </table>
+        <script src="https://code.highcharts.com/highcharts.js"></script>
+        <script>
+            function buildBarChart(container, graphData, title) {
+
+                Highcharts.chart(container, {
+
+                    chart: {
+                        type: 'column'
+                    },
+                    title: {
+                        text: title
+                    },
+                    subtitle: {
+                        text: ''
+                    },
+                    xAxis: {
+                        categories: graphData.labels
+                    },
+                    yAxis: {
+                        title: {
+                            text: 'Nombre de voyances'
+                        }
+                    },
+                    legend: {
+                        enabled: false
+                    },
+                    credits: {
+                        enabled: false
+                    },
+                    series: [{name: 'Données', data: graphData.data}]
+                });
+            }
+           
+            function buildPieChart(container, graphData ,title) {
+
+                Highcharts.chart(container, {
+
+                    chart: {
+                        type: 'pie'
+                    },
+                    title: {
+                        text: title
+                    },
+                    subtitle: {
+                        text: ''
+                    },
+                    credits: {
+                        enabled: false
+                    },
+                    series: [{name: graphData.label, data: graphData.data}]
+                });
+            }
+            
+            function initialisation() {
+                $.ajax({
+                    url: './ActionServlet',
+                    method: 'POST',
+                    data: {
+                        action: 'initialiser-statistique'
+                    },
+                    dataType: 'json'
+                }).done(function (data) {
+                    var connexion = data.connexion;
+                    if(connexion){
+                        var HistogramMediumData = {
+                            labels: [],
+                            data : []
+                        };
+                        var listeHistogramMedium = data.voyances_par_medium;
+                        $.each(listeHistogramMedium,function(i,element){
+                            HistogramMediumData.labels.push(element.nom);
+                            HistogramMediumData.data.push(element.valeur);
+                        });
+                        buildBarChart('container-1', HistogramMediumData, 'Nombre de voyances par médium');
+                        var HistogramEmployeData = {
+                            labels: [],
+                            data : []
+                        };
+                        var listeHistogramEmploye = data.voyances_par_employe;
+                        $.each(listeHistogramEmploye,function(i,element){
+                            HistogramEmployeData.labels.push(element.nom);
+                            HistogramEmployeData.data.push(element.valeur);
+                        });
+                        buildBarChart('container-2', HistogramEmployeData, 'Nombre de voyances par employé' );
+                        var PieChartData = {
+                            label : '',
+                            data : []
+                        };
+                        var dataRepartition = data.repartition;
+                        $.each(dataRepartition,function(i,element){
+                            PieChartData.data.push(element);
+                        });
+                        buildPieChart('container-3', PieChartData, "Répartition entre employés");
+                    }else{
+                        window.location = "connexionEmploye.html";
+                    }
+                });
+            }
+            
+            
+            $(document).ready(function () {
+                //appel de la fonction initialisation
+                initialisation();
+            });
+            
+        </script>
+    </body>
+</html>

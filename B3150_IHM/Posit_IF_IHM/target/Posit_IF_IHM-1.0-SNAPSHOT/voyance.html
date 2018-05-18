@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title>POSIT'IF</title>
+        <meta charset="UTF-8">
+        <link rel="stylesheet" href="./stylesheet.css" />
+        <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    </head>
+    <body id='voyance-client'>
+        <div class="topnav">
+            <a href="./index.html">Déconnexion</a>
+            <a href="./historiqueClient.html">Historique</a>
+            <a href="./voyance.html">Voyance</a>
+            <a href="./profilClient.html">Profil</a>
+        </div>
+        <h2>Nos Médiums</h2>
+        <table id = 'mep-voyance'>
+            <tr>
+                <td>
+                    <div id = 'conteneur-medium' >
+                        <span>Voyants</span>
+                            <div id='conteneur-voyants'></div>
+                        <br>
+                        <span>Cartomanciens</span>
+                            <div id='conteneur-cartomanciens'></div>
+                        <br>
+                        <span>Astrologues</span>
+                            <div id='conteneur-astrologues'></div>
+                    </div>
+                </td>
+                <td>
+                    <div id='biographie'>
+                        Selectionnez un medium
+                    </div>
+                </td>
+
+                <td>
+                </td>
+            </tr>
+        </table>
+        <br>
+        <br>
+        <button id='bouton-voyance'>Demander une voyance</button>
+        <div id='message-demande'></div>
+        <script>
+            function initialisation() {
+                $.ajax({
+                    url: './ActionServlet',
+                    method: 'POST',
+                    data: {
+                        action: 'initialiser-voyance',
+                    },
+                    dataType: 'json'
+                }).done(function (data) {
+                    // ici votre code...
+                    var voyants = data.voyants;
+                    var astrologues = data.astrologues;
+                    var cartomanciens = data.cartomanciens;
+                    $.each(voyants,function(i,voyant){
+                        var linkInput = '<button id="' + voyant.nom + '" onClick="afficherMedium(id);" > '+ voyant.nom +' </button>';
+                        $('#conteneur-voyants').append('<li>' + linkInput + '</li>');
+                    });
+                    $.each(astrologues,function(i,astrologue){
+                        var linkInput = '<button id="' + astrologue.nom + '" onClick="afficherMedium(id);" > '+ astrologue.nom +' </button>';
+                        $('#conteneur-astrologues').append('<li>' + linkInput + '</li>');
+                    });
+                    $.each(cartomanciens,function(i,cartomancien){
+                        var linkInput = '<button id="' + cartomancien.nom + '" onClick="afficherMedium(id);" > '+ cartomancien.nom +' </button>';
+                        $('#conteneur-cartomanciens').append('<li>' + linkInput + '</li>');
+                    });
+                });       
+            }
+            
+            function afficherMedium (nomMedium) {
+                $.ajax({
+                    url: './ActionServlet',
+                    method: 'POST',
+                    data: {
+                        action: 'afficherMedium',
+                        nomMedium: nomMedium
+                    },
+                    dataType: 'json'
+                }).done(function (data) {
+                    $('#biographie').html(data.infosMedium);
+                });
+            }
+            
+            $(document).ready(function () {
+                console.log('Initialisation de la page');
+                initialisation();
+                
+            });
+            
+            function demanderVoyance () {
+                $.ajax({
+                    url: './ActionServlet',
+                    method: 'POST',
+                    data: {
+                        action: 'demanderVoyance'
+                    },
+                    dataType: 'json'
+                }).done(function (data) {
+                    var status = data.status;
+                    if (status) {
+                        alert("Votre demande de voyance a bien été effectuée, le medium choisi vous répondra au plus vite")
+                    } else {
+                        alert("Le Médium demandé n'est malheureusement pas disponible pour le moment, veuillez réessayer plus tard ou choisir un autre Médium")
+                    }
+                });
+            }
+            
+            $('#bouton-voyance').on('click', function () {
+                 // affichage pour debugage dans la console javascript du navigateur
+                    console.log('Click sur le bouton "Demander voyance"');
+                    // appel de la fonction demanderVoyance
+                    demanderVoyance();
+            });
+        </script>
+    </body>
+</html>
+        

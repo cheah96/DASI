@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title>POSIT'IF</title>
+        <meta charset="UTF-8">
+        <link rel="stylesheet" href="./stylesheet.css" />
+        <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    </head>
+    <body id='historique-client'>
+        <div class="topnav">
+            <a href="./index.html">Déconnexion</a>
+            <a href="./historiqueClient.html">Historique</a>
+            <a href="./voyance.html">Voyance</a>
+            <a href="./profilClient.html">Profil</a>
+        </div>
+        
+        <div id='conteneur-historique'>
+            <table id='table-historique'>
+                <tr>
+                    <th>Médium</th>
+                    <th>Date</th>
+                    <th>Heure de début</th>
+                    <th>Heure de fin</th>
+                </tr>
+            </table>
+        </div>
+        
+        <script>
+            function initialisation() {
+                $.ajax({
+                    url: './ActionServlet',
+                    method: 'POST',
+                    data: {
+                        action: 'initialiser-historique',
+                    },
+                    dataType: 'json'
+                }).done(function (data) {
+                    // ici votre code...
+                    var conversations = data.conversations;
+                    $.each(conversations,function(i,conversation){
+                        var linkInput = '<tr><td> '+ conversation.medium + ' </td><td> ' + conversation.date + ' </td><td> '+ conversation.heureDeb + ' </td><td> '+ conversation.heureFin + ' </td></tr> ';
+                        $('#table-historique').append(linkInput);
+                    });
+                });       
+            }
+            
+            $(document).ready(function () {
+                console.log('Initialisation de la page');
+                initialisation();
+            });
+        </script>
+    </body>
+</html>

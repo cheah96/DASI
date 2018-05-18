@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>POSIT'IF</title>
+        <meta charset="UTF-8">
+        <link rel="stylesheet" href="./stylesheet.css" />
+        <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    </head>
+    <body>
+        <table id='mep-connexion-client'>
+        <tr>
+        <td align='center'>
+            <h1>Connexion</h1>
+            Identifiant : <input type="text" id="champ-login" name="login" placeholder="votre identifiant" /><br/><br/>
+            <button id="bouton-connexion">Se connecter</button>   
+            <div id='message'></div>
+        </td>
+        <td align='center'>
+            <h1>Inscription</h1>
+            <table border = '0'>
+                <tr>
+                <td>Civilité :</td>
+                <td><select id='bouton-civilite' name="civilite" size="1">
+                    <option value="M."> M.</option>
+                    <option value="Mme."> Mme.</option>
+                </select><td/> </tr>
+                <tr><td>Nom :</td> <td><input type="text" id="champ-nom" name="nom" placeholder="Nom" /></td></tr>
+                <tr><td>Prénom : </td> <td><input type="text" id="champ-prenom" name="prenom" placeholder="Prénom" /></td></tr>
+                <tr><td>Date de naissance : </td> <td><input type="date" id="champ-date" name="date-naissance" /></td></tr>
+                <tr><td>Mail : </td> <td><input type="text" id="champ-mail" name="mail" placeholder="Mail" /></td></tr>
+                <tr><td>Confirmation : </td> <td><input type="text" id="champ-conf-mail" name="conf-mail" placeholder="Mail" /></td></tr>
+                <tr><td>Adresse : </td> <td><input type="text" id="champ-adresse" name="adresse" placeholder="Adresse" /></td></tr>
+                <tr><td>Téléphone : </td> <td><input type="text" id="champ-tel" name="tel" placeholder="Téléphone" /></td></tr>
+            </table>
+            <br/>
+            <input id ='check-cgu' type="checkbox" name="cgu" value="cgu-ok" /> J'accepte les conditions générales de POSIT'IF <br/>
+            <br/>
+            <button id='bouton-inscription'>S'inscrire</button>   
+            <div id='message-inscrip'></div>
+        </td>
+        </tr>
+        </table>
+        <script>
+
+            function connexion() {
+                var champLogin = $('#champ-login').val();
+
+                $('#message').html('Connexion en cours...');
+
+                $.ajax({
+                    url: './ActionServlet',
+                    method: 'POST',
+                    data: {
+                        action: 'connecter',
+                        login: champLogin
+                    },
+                    dataType: 'json'
+                }).done(function (data) {
+                    // ici votre code...
+                    var status = data.status;
+                    if(status === true){
+                    // si connexion ok, aller sur la page suivante :
+                        window.location = "profilClient.html";
+                    }
+                    else{
+                    // si connexion pas ok afficher un texte dans la div message :
+                        $('#message').html('Echec de la connexion');
+                    }
+                });       
+            }
+            
+            function inscription () {
+                var civilite = $('#bouton-civilite').val();
+                var nom = $('#champ-nom').val();
+                var prenom = $('#champ-prenom').val();
+                var dateNaissance = $('#champ-date').val();
+                var adresse = $('#champ-adresse').val();
+                var mail = $('#champ-mail').val();
+                var mailConfirmation = $('#champ-conf-mail').val();
+                var telephone = $('#champ-tel').val();
+                var cgu = $('#check-cgu').prop('checked');
+                
+                $('#message-inscrip').html('Inscription en cours...');
+                
+                $.ajax({
+                    url: './ActionServlet',
+                    method: 'POST',
+                    data: {
+                        action: 'inscrire',
+                        civilite: civilite,
+                        nom: nom,
+                        prenom: prenom,
+                        dateNaissance: dateNaissance,
+                        adresse: adresse,
+                        mail: mail,
+                        mailConfirmation: mailConfirmation,
+                        telephone: telephone,
+                        cgu: cgu
+                    },
+                    dataType: 'json'
+                }).done(function (data) {
+                    // ici votre code...
+                    var status = data.client.status;
+                    var cause = data.client.cause;
+                    if(status === true){
+                    // si connexion ok, aller sur la page suivante :
+                        alert("Inscription réussie, vous avez reçu un mail de confirmation");
+                        window.location = "connexionClient.html";
+                    }
+                    else{
+                        if(cause === "cgu"){
+                            $('#message-inscrip').html('Veuillez accepter les conditions générales d\'utilisation');
+                        }
+                        else if(cause === "mail"){
+                            $('#message-inscrip').html('Veuillez vérifier l\'adresse mail saisie');
+                        }
+                        else{
+                            $('#message-inscrip').html('Veuillez remplir tous les champs');
+                        }
+                    }
+                }); 
+            }
+            
+
+            $(document).ready(function () {
+                // ajout d'un "handler" sur le clic du bouton de connexion
+                $('#bouton-connexion').on('click', function () {
+                    // affichage pour debugage dans la console javascript du navigateur
+                    console.log('Click sur le bouton "Se Connecter"');
+                    // appel de la fonction connexion
+                    connexion();
+                });
+                
+                $('#bouton-inscription').on('click', function ()  {
+                    // affichage pour debugage dans la console javascript du navigateur
+                    console.log('Click sur le bouton "S\'inscrire"');
+                    // appel de la fonction connexion
+                    inscription();
+                });
+            });
+            
+        </script>
+    </body>
+</html>

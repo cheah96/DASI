@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title>POSIT'IF</title>
+        <meta charset="UTF-8">
+        <link rel="stylesheet" href="./stylesheet.css" />
+        <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    </head>
+    <body id="consultation">
+        <div class="topnav">
+            <a href="./index.html">Déconnexion</a>
+            <a href="./statistique.html">Statistiques</a>
+            <a href="./consultation.html">Voyance</a>
+        </div>
+        
+        
+        <h1>POSIT'IF</h1>
+        
+        <div id="contenu"></div>
+        <script>
+            
+           function commencer_voyance() {
+                
+                $.ajax({
+                    url: './ActionServlet',
+                    method: 'POST',
+                    data: {
+                        action: 'commencer-voyance'
+                    },
+                    dataType: 'json'
+                }).done(function (data) {
+                    var status = data.status;
+                    if(status === true){
+                    // si connexion ok, aller sur la page suivante :
+                        window.location = "voyanceEmploye.html";
+                    }
+                    else{
+                    // si connexion pas ok afficher un texte dans la div message :
+                        alert('Veuillez réessayer plus tard');
+                    }
+                });       
+            }
+            
+            function initialisation() {
+                $.ajax({
+                    url: './ActionServlet',
+                    method: 'POST',
+                    data: {
+                        action: 'initialiser-consultation'
+                    },
+                    dataType: 'json'
+                }).done(function (data) {
+                    var connexion = data.connexion;
+                    if(connexion){
+                        var status = data.status;
+
+                        if(status) {
+                            var tableBody = document.createElement('table');
+                            tableBody.id = 'table-body';
+                            var row = tableBody.insertRow(0);
+                            var cell1 = row.insertCell(0);
+                            var cell2 = row.insertCell(1);
+                            
+                            var civilite = data.client.civilite;
+                            var nom = data.client.nom;
+                            var prenom = data.client.prenom;
+                            var mail = data.client.mail;
+                            var adresse = data.client.adresse;
+                            var tel = data.client.tel;
+                            var dateNaiss = data.client.date_Naiss;
+                            var signe_chinois = data.client.signe_chinois;
+                            var zodiaque = data.client.zodiaque;
+                            var coul_fav = data.client.coul_fav;
+                            var totem = data.client.animal_totem;
+
+                            var info = '<h2>'+ prenom + ' '+ nom +'</h2>' + '<table>' +
+                                    '<tr><td>Civilité :</td>' + '<td><input type="text" id="champ-civilite" name="civilite" value="'+ civilite +'" readonly/></td></tr>'  + 
+                                    '<tr><td>Date de naissance : </td> <td><input type="date" id="champ-date" name="date-naissance" value="' + dateNaiss +'" readonly/></td></tr>' + 
+                                    '<tr><td>Zodiaque : </td> <td><input type="text" id="champ-zodiaque" name="zodiaque" value="' + zodiaque +'" readonly /></td></tr>' +
+                                    '<tr><td>Signe Chinois : </td> <td><input type="text" id="champ-signe-chinois" name="signe-chinois" value="' + signe_chinois +'" readonly/></td></tr>' +
+                                    '<tr><td>Couleur : </td> <td><input type="text" id="champ-couleur" name="couleur" value="' + coul_fav +'" readonly/></td></tr>' +
+                                    '<tr><td>Animal Totem : </td> <td><input type="text" id="champ-totem" name="totem" value="' + totem +'" readonly/></td></tr>'+
+                                    '<tr><td>Adresse : </td> <td><input type="text" id="champ-adresse" name="adresse" value="' + adresse +'" readonly/></td></tr>' +
+                                    '<tr><td>Tel : </td> <td><input type="text" id="champ-tel" name="tel" value="' + tel +'" readonly /></td></tr>' +
+                                    '<tr><td>Mail : </td> <td><input type="text" id="champ-mail" name="mail" value="' + mail +'" readonly /></td></tr>' 
+                                    + '</table>';
+                            cell1.innerHTML = info;
+                            var tableHistorique = document.createElement('table');
+                            tableHistorique.id = 'table-historique';
+                            tableHistorique.border = 1;
+                            var historiques = data.liste_historique;
+                            var rowh = tableHistorique.createTHead();
+                            var headerCell1 = document.createElement("TH");
+                            headerCell1.innerHTML = 'Medium';
+                            rowh.appendChild(headerCell1);
+                            var headerCell2 = document.createElement("TH");
+                            headerCell2.innerHTML = 'Employe';
+                            rowh.appendChild(headerCell2);
+                            var headerCell3 = document.createElement("TH");
+                            headerCell3.innerHTML = 'Date';
+                            rowh.appendChild(headerCell3);
+                            var headerCell4 = document.createElement("TH");
+                            headerCell4.innerHTML = 'Heure Debut';
+                            rowh.appendChild(headerCell4);
+                            var headerCell5 = document.createElement("TH");
+                            headerCell5.innerHTML = 'Heure Fin';
+                            rowh.appendChild(headerCell5);
+                            var headerCell6 = document.createElement("TH");
+                            headerCell6.innerHTML = 'Commentaire';
+                            rowh.appendChild(headerCell6);
+                            $.each(historiques,function(i,historique){
+                                var row2 = tableHistorique.insertRow();
+                                var cell1 = row2.insertCell(0);
+                                cell1.innerHTML = historique.medium;
+                                var cell2 = row2.insertCell(1);
+                                cell2.innerHTML = historique.employe;
+                                var cell3 = row2.insertCell(2);
+                                cell3.innerHTML = historique.date;
+                                var cell4 = row2.insertCell(3);
+                                cell4.innerHTML = historique.heure_debut;
+                                var cell5 = row2.insertCell(4);
+                                cell5.innerHTML = historique.heure_fin;
+                                var cell6 = row2.insertCell(5);
+                                cell6.innerHTML = historique.commentaire;
+                            });
+                            cell2.appendChild(tableHistorique);
+                            var idiv = document.getElementById("contenu");
+                            idiv.appendChild(tableBody);
+                            
+                            var boutonRealiser = document.createElement('button');
+                            boutonRealiser.id = 'bouton-realiser-consultation';
+                            boutonRealiser.innerHTML = 'Realiser la consultation';
+                            boutonRealiser.onclick = function(){
+                                console.log('Click sur le bouton "Realiser la consultation"');
+                                alert("debug");
+                                commencer_voyance();
+                            };
+                            var idiv = document.getElementById("contenu");
+                            idiv.appendChild(boutonRealiser);
+                            
+                        }
+                        else  {
+                            $('#contenu').html('En attente de Client...');
+                        }
+                    }else{
+                        window.location = "connexionEmploye.html";
+                    }
+                });
+            }
+
+            $(document).ready(function () {
+                //appel de la fonction initialisation
+                initialisation();
+            });
+            
+            
+        </script>
+    </body>
+</html>

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Start Page</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    </head>
+    <body>
+        <h1>Hello World!</h1>
+        <table border = '0' width=100% height=100%>
+            <tr>
+                <td align='center'>
+                <button id="bouton-client"> Client </button>
+                </td>
+            </tr>
+            <tr>
+                <td align='center'>
+                <button id="bouton-employe"> Employé </button>
+                </td>
+            </tr>
+        </table>
+        
+
+    
+        <script>
+             
+             
+    
+    
+            $(document).ready(function () {
+                // ajout d'un "handler" sur le clic du bouton client
+                $('#bouton-client').on('click', function () {
+                    // affichage pour debugage dans la console javascript du navigateur
+                    console.log('Click sur le bouton "Client"');
+                    // changement de page vers IHM client
+                    window.location = "connexionClient.html";
+                });
+                
+                $('#bouton-employe').on('click', function () {
+                    // affichage pour debugage dans la console javascript du navigateur
+                    console.log('Click sur le bouton "Employé"');
+                    // changement de page vers IHM Employe
+                    window.location = "connexionEmploye.html";
+                });
+            });
+        </script>    
+    
+    </body>
+</html>
