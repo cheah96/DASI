@@ -445,6 +445,7 @@ public class ActionServletSession extends HttpServlet {
             }
             else if ("terminer-consultation".equals(action)) {
                 Employe e = (Employe)session.getAttribute("employe");
+                session.removeAttribute("ClientEnAttente");
                 try(PrintWriter out = response.getWriter()){
                     String commentaire = request.getParameter("commentaire");
                     Gson gson = new GsonBuilder().setPrettyPrinting().create();
